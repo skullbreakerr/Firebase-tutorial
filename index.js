@@ -1,9 +1,11 @@
 // Import stylesheets
 import './style.css';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs,addDoc} from 'firebase/firestore';
+import { getFirestore, collection, onSnapshot,addDoc,deleteDoc,doc,query,where} from 'firebase/firestore';  // import getDoc for data collection 
 // Write Javascript code!
 const appDiv = document.getElementById('app');
+const usercountDiv = document.getElementById('usercount');
+const userlistDiv = document.getElementById('userlist'); 
 appDiv.innerHTML = `<h1>JS Starter</h1>`;
 
 const firebaseConfig = {
@@ -23,16 +25,30 @@ const db = getFirestore();
 // collection ref//
 const colRef = collection(db, 'users');
 
+// queries
+const q = query(colRef, where('lastname','==','patel'))
+
 // get data //
-getDocs(colRef).then((snapshot) => {
+
+// getDocs(colRef).then((snapshot) => {
+//   let users=[]
+//   snapshot.docs.forEach((doc)=>{
+//     users.push({ ...doc.data(), id: doc.id })
+//   })
+//   console.log(users)  
+// })
+// .catch(error => {
+//   console.log(error.message)
+// })
+
+//real time collection data //
+
+onSnapshot(q,(snapshot)=> {   // replace it with colRef to get whole data in db 
   let users=[]
   snapshot.docs.forEach((doc)=>{
     users.push({ ...doc.data(), id: doc.id })
   })
-  console.log(users)
-})
-.catch(error => {
-  console.log(error.message)
+   usercountDiv.innerHTML = '<h4>'+users.length+' users added</h4>'
 })
 
 //add user//
@@ -52,4 +68,8 @@ adduser.addEventListener('submit',(e) =>{
 const deleteuser = document.querySelector('.delete')
 deleteuser.addEventListener('submit',(e) =>{
   e.preventDefault()
+  const docRef = doc(db,'users',deleteuser.id.value)
+  deleteDoc(docRef).then(()=>{
+    deleteuser.reset()
+  })
 })
