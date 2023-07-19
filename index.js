@@ -1,11 +1,21 @@
 // Import stylesheets
 import './style.css';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, onSnapshot,addDoc,deleteDoc,doc,query,where} from 'firebase/firestore';  // import getDoc for data collection 
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  orderBy,
+} from 'firebase/firestore'; // import getDoc for data collection
 // Write Javascript code!
 const appDiv = document.getElementById('app');
 const usercountDiv = document.getElementById('usercount');
-const userlistDiv = document.getElementById('userlist'); 
+const userlistDiv = document.getElementById('userlist');
 appDiv.innerHTML = `<h1>JS Starter</h1>`;
 
 const firebaseConfig = {
@@ -26,7 +36,11 @@ const db = getFirestore();
 const colRef = collection(db, 'users');
 
 // queries
-const q = query(colRef, where('lastname','==','patel'))
+const q = query(
+  colRef,
+  where('lastname', '==', 'patel'),
+  orderBy('title', 'desc')
+);
 
 // get data //
 
@@ -35,7 +49,7 @@ const q = query(colRef, where('lastname','==','patel'))
 //   snapshot.docs.forEach((doc)=>{
 //     users.push({ ...doc.data(), id: doc.id })
 //   })
-//   console.log(users)  
+//   console.log(users)
 // })
 // .catch(error => {
 //   console.log(error.message)
@@ -43,33 +57,34 @@ const q = query(colRef, where('lastname','==','patel'))
 
 //real time collection data //
 
-onSnapshot(q,(snapshot)=> {   // replace it with colRef to get whole data in db 
-  let users=[]
-  snapshot.docs.forEach((doc)=>{
-    users.push({ ...doc.data(), id: doc.id })
-  })
-   usercountDiv.innerHTML = '<h4>'+users.length+' users added</h4>'
-})
+onSnapshot(q, (snapshot) => {
+  // replace it with colRef to get whole data in db
+  let users = [];
+  snapshot.docs.forEach((doc) => {
+    users.push({ ...doc.data(), id: doc.id });
+  });
+  usercountDiv.innerHTML = '<h4>' + users.length + ' users added</h4>';
+});
 
 //add user//
-const adduser = document.querySelector('.add')
-adduser.addEventListener('submit',(e) =>{
-  e.preventDefault()
-  addDoc(colRef,{
-    firstname : adduser.firstname.value,
-    lastname : adduser.lastname.value,
-    uid :adduser.uid.value,
-  }).then(()=>{
-    adduser.reset()
-  })
-})
+const adduser = document.querySelector('.add');
+adduser.addEventListener('submit', (e) => {
+  e.preventDefault();
+  addDoc(colRef, {
+    firstname: adduser.firstname.value,
+    lastname: adduser.lastname.value,
+    uid: adduser.uid.value,
+  }).then(() => {
+    adduser.reset();
+  });
+});
 
 // delete user //
-const deleteuser = document.querySelector('.delete')
-deleteuser.addEventListener('submit',(e) =>{
-  e.preventDefault()
-  const docRef = doc(db,'users',deleteuser.id.value)
-  deleteDoc(docRef).then(()=>{
-    deleteuser.reset()
-  })
-})
+const deleteuser = document.querySelector('.delete');
+deleteuser.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const docRef = doc(db, 'users', deleteuser.id.value);
+  deleteDoc(docRef).then(() => {
+    deleteuser.reset();
+  });
+});
